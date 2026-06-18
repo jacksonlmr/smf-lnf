@@ -8,15 +8,13 @@ from src.models.llm_schemas import FoundItem
 # Initialize ai client
 client = genai.Client(api_key=GEMINI_API_KEY)
 
-def extract_found_item_data(image_path: str) -> FoundItem | None:
+def extract_found_item_data(image: PIL.Image.Image) -> FoundItem | None:
     """
     Takes an image file path, sends it to Gemini, and returns a validated FoundItem object.
     """
     try:
-        image = PIL.Image.open(image_path)
-        
         response = client.models.generate_content(
-            model='gemini-2.0-flash',
+            model='gemini-3.5-flash',
             contents=[
                 "Extract the handwritten information from this 'Found Article Form' according to the schema.", 
                 image
