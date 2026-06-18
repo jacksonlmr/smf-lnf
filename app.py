@@ -3,9 +3,7 @@ import PIL.Image
 
 from src.services.ai_service import extract_found_item_data
 
-# ==========================================
 # PAGE CONFIGURATION
-# ==========================================
 st.set_page_config(
     page_title="Lost and Found",
     page_icon="📋",
@@ -24,7 +22,7 @@ uploaded_file = st.file_uploader(
 if uploaded_file is not None:
     # Display the uploaded image to the user
     image = PIL.Image.open(uploaded_file)
-    st.image(image, caption="Uploaded Form", use_container_width=True)
+    st.image(image, caption="Uploaded Form", width='stretch')
     
     # Extract Data button
     if st.button("Extract Form Data", type="primary"):
