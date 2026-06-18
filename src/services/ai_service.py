@@ -8,9 +8,9 @@ from src.core.config import GEMINI_API_KEY
 from src.models.llm_schemas import FoundItem
 
 logger = logging.getLogger(__name__)
-client = genai.Client(api_key=GEMINI_API_KEY)
+default_client = genai.Client(api_key=GEMINI_API_KEY)
 
-def extract_found_item_data(image: PIL.Image.Image) -> FoundItem | None:
+def extract_found_item_data(image: PIL.Image.Image, client=default_client) -> FoundItem | None:
     """
     Takes an image file path, sends it to Gemini, and returns a validated FoundItem object.
     """
