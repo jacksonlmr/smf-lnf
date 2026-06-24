@@ -4,7 +4,7 @@ from google import genai
 from google.genai import types
 import typing
 
-from src.core.config import GEMINI_API_KEY
+from src.core.config import GEMINI_API_KEY, GEMINI_MODEL
 from src.models.llm_schemas import FoundItem
 
 logger = logging.getLogger(__name__)
@@ -16,7 +16,7 @@ def extract_found_item_data(image: PIL.Image.Image, client=default_client) -> Fo
     """
     try:
         response = client.models.generate_content(
-            model='gemini-3.5-flash',
+            model=GEMINI_MODEL,
             contents=[
                 "Extract the handwritten information from this 'Found Article Form' according to the schema.",
                 image

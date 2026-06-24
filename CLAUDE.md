@@ -8,17 +8,33 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Running locally
 
-Requires Python 3.14 and a `.env` file at the repo root with `GEMINI_API_KEY=<key>`.
+Requires Python 3.14 and a `.env` file at the repo root:
+
+```
+GEMINI_API_KEY=<key>
+GEMINI_MODEL=<model-name>
+```
 
 ```bash
-# Activate the virtual environment
+# Activate venv (bash)
 source .venv/bin/activate
+# Activate venv (PowerShell)
+.venv\Scripts\Activate.ps1
 
-# Run the app
 streamlit run app.py
 ```
 
-App is served at `http://localhost:8501`.
+## Tests
+
+```bash
+pytest                              # all tests
+pytest tests/services/test_ai_service.py   # single file
+pytest -k test_returns_found_item   # single test by name
+```
+
+Dev dependencies (`requirements-dev.txt`): `pytest`, `pytest-mock`.
+
+Tests use dependency injection — `extract_found_item_data()` accepts an optional `client` parameter, so tests pass a `MagicMock` instead of hitting the real Gemini API. `conftest.py` sets a fake `GEMINI_API_KEY` env var before any imports to prevent the config module from raising on missing keys.
 
 ## Docker
 
@@ -29,27 +45,16 @@ docker run -p 8501:8501 --env-file .env smf-lnf
 
 ## Architecture
 
-```
-app.py                      # Streamlit UI entry point
-src/
-  core/config.py            # Loads GEMINI_API_KEY from .env; raises on missing key
-  models/llm_schemas.py     # Pydantic model (FoundItem) — defines the structured output schema sent to Gemini
-  services/ai_service.py    # Gemini client; extract_found_item_data() takes an image path, returns a FoundItem
-```
+**Data flow**: `app.py` receives an uploaded image → opens it as a `PIL.Image` → calls `extract_found_item_data(image)` in `ai_service.py` → Gemini returns structured JSON constrained by the `FoundItem` schema → result displayed in the UI.
 
-**Data flow**: `app.py` receives an uploaded image → writes it to a temp file → calls `extract_found_item_data(path)` in `ai_service.py` → Gemini `gemini-2.0-flash` returns structured JSON constrained by the `FoundItem` schema → result displayed in the UI.
+**Structured output**: The `FoundItem` Pydantic model (`src/models/llm_schemas.py`) is passed as `response_schema` to the Gemini API via `types.GenerateContentConfig`, which enforces JSON output matching the model's fields. Changing the schema changes what Gemini extracts.
 
-**Structured output**: The `FoundItem` Pydantic model is passed directly as `response_schema` to the Gemini API (`types.GenerateContentConfig`), which enforces JSON output matching the model's fields. Changing the schema in `llm_schemas.py` changes what Gemini extracts.
+**Config**: `src/core/config.py` loads `GEMINI_API_KEY` and `GEMINI_MODEL` from `.env` at import time and raises if either is missing. The model name is not hardcoded — it comes from the environment.
 
 ## Key dependencies
 
-| Package | Version | Purpose |
-|---|---|---|
-| `streamlit` | 1.58.0 | UI |
-| `google-genai` | 2.8.0 | Gemini API client |
-| `pillow` | 12.2.0 | Image loading |
-| `python-dotenv` | 1.2.2 | `.env` loading |
-
+`requirements.txt`: `streamlit`, `google-genai`, `pillow`, `python-dotenv`
 
 ## Rules
-* Don't use any commands that require permission from the user unless absolutely neccessary. 
+* Don't use any commands that require permission from the user unless absolutely necessary.
+* When making changes to the codebase, update CLAUDE.md to reflect those changes if they affect anything documented here (architecture, data flow, config, dependencies, commands, etc.). 

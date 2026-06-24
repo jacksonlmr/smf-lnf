@@ -6,7 +6,10 @@ load_dotenv()
 
 
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
+GEMINI_MODEL = os.getenv("GEMINI_MODEL")
 
-# Validate critical secrets on startup
 if not GEMINI_API_KEY:
     raise ValueError("GEMINI_API_KEY is missing from the environment variables.")
+
+if not GEMINI_MODEL:
+    raise ValueError("GEMINI_MODEL is missing from the environment variables")
