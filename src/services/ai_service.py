@@ -12,6 +12,7 @@ from src.models.llm_schemas import FoundItem
 logger = logging.getLogger(__name__)
 async_client = genai.Client(api_key=GEMINI_API_KEY).aio
 
+# Need to add logic to keep track of what images returned None so they can be further processed. 
 async def process_images_concurrently(
     processing_func: Callable[[PIL.Image.ImageFile.ImageFile, Any], Awaitable[Any]],
     images: List[PIL.Image.ImageFile.ImageFile],
