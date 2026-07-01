@@ -99,7 +99,10 @@ async def extract_found_item_data(image: ImageFile, client: genai.client.AsyncCl
 
         if response.parsed is None:
             raw = response.text
-            logger.error("Gemini returned a response but parsed result is None. Raw response: %s", raw)
+            if raw:
+                logger.error("Gemini returned a response but parsed result is None. Raw response: %s", raw)
+                return None
+            logger.error("Gemini failed to return a response")
             return None
         
         return cast(FoundItem, response.parsed)
